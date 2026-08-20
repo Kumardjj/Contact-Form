@@ -1,0 +1,4 @@
+fastvenv/
+app/__pycache__/
+.env
+*.pyc
