@@ -1,11 +1,25 @@
 from app.database import contact_collection
 from bson import ObjectId
+from bson.errors import InvalidId
+from fastapi import Depends
+
+# helper fucntion
+def validate_object_id(contact_id : str):
+    try:
+        return ObjectId(contact_id)
+    except InvalidId:
+        return None
+
+# helper fucntion
+def get_collection():
+    return contact_collection
+
 
 def create_contact(data):
     result = contact_collection.insert_one(data)
     return str(result.inserted_id)
 
-def get_all_contacts(page, limit, search):
+def get_all_contacts(  page, limit, search, collection = Depends(get_collection)):
     skip = (page -1) * limit
     query = {}
     if search:
@@ -26,14 +40,20 @@ def get_all_contacts(page, limit, search):
             ]
         }
         contacts = []
-    for contact in contact_collection.find(query).skip(skip).limit(limit):
+    for contact in collection.find(query).skip(skip).limit(limit):
         contact['_id'] = str(contact['_id'])
         contacts.append(contact)
     return contacts
 
 def get_contact(contact_id, contact):
+    try:
+        obj_id = validate_object_id(contact_id)
+    except InvalidId:
+        raise ValueError("Invalid contact Id")
+    if not obj_id:
+        return None
     contact = contact_collection.find_one({
-    "_id":ObjectId(contact_id)})
+    "_id":obj_id})
 
     if contact:
         contact['_id'] = str(contact['_id'])

@@ -1,13 +1,15 @@
-from fastapi import APIRouter, HTTPException
-
+from fastapi import APIRouter, HTTPException, Depends
+from bson import ObjectId 
+from bson.errors import InvalidId
 from app.models import ContactCreate
 from app.database import contact_collection
 from app.contact_service import (create_contact, 
                                 get_contact, 
                                 get_all_contacts,
                                 update_contact, 
-                                delete_contact)
-
+                                delete_contact,
+                                )
+from app.dependencies import get_current_user
 router = APIRouter(prefix = "/contacts", tags = ["Contacts"])
 
 @router.post("/")
@@ -29,14 +31,17 @@ def get_all(page: int = 1,
 @router.get("/{contact_id}")
 
 def get_one(contact_id : str):
-
-    contact = get_contact(contact_id)
-    if not contact:
-        raise HTTPException(
-            status_code = 404,
-            detail = "Contact not found"
-        )
-    return contact
+    try:
+        contact = get_contact(contact_id)
+        if not contact:
+            raise HTTPException(
+                status_code = 404,
+                detail = "Contact not found"
+            )
+        return contact
+    except ValueError as e:
+        raise HTTPException(status_code= 400,
+                            details = str(e))
 
 @router.post("/{contact_id}")
 def update(contact_id :str , contact : ContactCreate):
