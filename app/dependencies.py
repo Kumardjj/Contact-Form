@@ -23,7 +23,7 @@ def get_current_user(
         if username is None:
             raise HTTPException(
                 status_code = 401,
-                details = "Invalid token"
+                detail = "Invalid token"
             )
         
         return username
@@ -31,6 +31,6 @@ def get_current_user(
     except JWTError:
         raise HTTPException(
             status_code=401,
-            details = "invalid or expired token"
+            detail = "invalid or expired token"
         )
 

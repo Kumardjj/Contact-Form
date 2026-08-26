@@ -19,7 +19,7 @@ def create_contact(data):
     result = contact_collection.insert_one(data)
     return str(result.inserted_id)
 
-def get_all_contacts(  page, limit, search, collection = Depends(get_collection)):
+def get_all_contacts(  page, limit, search, collection):
     skip = (page -1) * limit
     query = {}
     if search:
@@ -39,7 +39,7 @@ def get_all_contacts(  page, limit, search, collection = Depends(get_collection)
                 }
             ]
         }
-        contacts = []
+    contacts = []
     for contact in collection.find(query).skip(skip).limit(limit):
         contact['_id'] = str(contact['_id'])
         contacts.append(contact)
