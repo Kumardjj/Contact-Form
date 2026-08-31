@@ -1,4 +1,6 @@
-import re 
+import re
+
+
 SUSPICIOUS_KEYWORDS = [
     "buy now",
     "free money",
@@ -7,25 +9,52 @@ SUSPICIOUS_KEYWORDS = [
     "winner",
     "make money fast",
 ]
-def count_urls(text : str) -> int:
-    urls = re.findall(r"https?://\S+|www\.S+",text)
+
+
+def count_urls(text: str) -> int:
+    urls = re.findall(
+        r"https?://\S+|www\.\S+",
+        text
+    )
+
     return len(urls)
 
-def suspiciouswords(text : str)->list[str]:
+
+def find_suspicious_keywords(text: str) -> list[str]:
     text = text.lower().strip()
+
     found_keywords = []
+
     for keyword in SUSPICIOUS_KEYWORDS:
-        if keyword in text:
+        pattern = rf"\b{re.escape(keyword)}\b"
+        if re.search(pattern, text):
             found_keywords.append(keyword)
+
     return found_keywords
 
-def has_excessive_caps(text : str)->bool:
-    letters = [ char for char in text if char.isalpha()]
+
+def has_excessive_caps(text: str) -> bool:
+    letters = [
+        char for char in text
+        if char.isalpha()
+    ]
+
     if not letters:
         return False
-    upper = [ char for char in letters if char.isupper()]
-    result = len(upper)/len(letters)
-    return upper >= 0.70
-def has_repeated_characters(text : str)-> bool:
-    result = re.search(r"")
 
+    uppercase_letters = [
+        char for char in letters
+        if char.isupper()
+    ]
+
+    uppercase_ratio = (
+        len(uppercase_letters) / len(letters)
+    )
+
+    return uppercase_ratio >= 0.70
+
+
+def has_repeated_characters(text: str) -> bool:
+    return bool(
+        re.search(r"(.)\1{4,}", text)
+    )

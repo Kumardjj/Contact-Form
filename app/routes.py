@@ -16,18 +16,37 @@ from app.spam.spam_service import calculate_spam_score
 router = APIRouter(prefix = "/contacts", tags = ["Contacts"])
 
 @router.post("/")
-def create( contact : ContactCreate):
+def create(contact: ContactCreate):
+
+    # Convert API input into spam-engine input
     spam_input = SpamInput(
-        name = contact.name,
-        email = contact.email,
-        subject = contact.subject,
-        
+        name=contact.name,
+        email=contact.email,
+        subject=contact.subject,
+        message=contact.message
     )
 
-    contact_id = create_contact(contact.model_dump())
+    # Run spam detection
+    spam_result = calculate_spam_score(spam_input)
+
+    # Prepare MongoDB document
+    data = contact.model_dump()
+
+    data["spam_score"] = spam_result.score
+    data["spam_status"] = spam_result.status
+    data["spam_reasons"] = spam_result.reason
+
+    # Save everything into MongoDB
+    contact_id = create_contact(data)
+
     return {
         "message": "Contact form submitted successfully",
-        "id": str(contact_id)
+        "id": str(contact_id),
+        "spam": {
+            "score": spam_result.score,
+            "status": spam_result.status,
+            "reasons": spam_result.reasons
+        }
     }
 
 @router.get("/")
