@@ -1,11 +1,5 @@
 import re
-from dataclasses import dataclass, field
-
-@dataclass
-class SpamResult:
-    score: float
-    status : str
-    reason : list[str] = field(default_factory=list)
+from models import SpamInput, SpamResult
 
 def count_urls(text : str) -> int:
     urls = re.findall(r"https?://\S+|www\.\S+",text)
@@ -42,18 +36,44 @@ def find_suspicious_keyword(text:str)->list[str]:
         found_keywords.append(keyword)
     return found_keywords
 
-def calculate_spam_score(name: str,
-                         email: str,
-                         subject: str,
-                         message: str)-> SpamResult:
+def has_excessive_caps(text: str) -> bool:
+    letters = [char for char in text if char.isalpha()]
+    if not letters:
+        return False
+    uppercase_letters = [char for char in letters if char.isupper()]
+
+    uppercase_ratio = len(uppercase_letters) / len(letters)
+    return uppercase_ratio >= 0.70
+
+def has_repeated_characters(text : str)-> bool:
+    return bool(re.search(r"(.)\1{4,}",text))
+
+
+
+def calculate_spam_score(data: SpamInput)-> SpamResult:
     score = 0.0
     reasons = []
-    keywords = find_suspicious_keyword(message)
+    
+    keywords = find_suspicious_keyword(data.message)
     if keywords:
         score+= 0.20
-    url_count = count_urls(message)
+        reasons.append("suspicious keywords")
+
+    if has_excessive_caps(data.message):
+        score+= 0.10
+        reasons.append("Has excessive capitalization")
+
+    if has_repeated_characters(data.message):
+        score+=0.10
+        reasons.append("Has repeated character")
+
+    url_count = count_urls(data.message)
     if url_count >= 5:
         score += 0.30
+        reasons.append("Too many urls")
+
     elif url_count >= 3:
         score += 0.20
+        reasons.append("multiple urls")
+
     return classify_score(score,reasons)

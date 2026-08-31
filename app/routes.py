@@ -11,10 +11,18 @@ from app.contact_service import (create_contact,
                                 )
 from app.dependencies import get_current_user
 from app.contact_service import get_collection
+from app.spam.models import SpamInput 
+from app.spam.spam_service import calculate_spam_score
 router = APIRouter(prefix = "/contacts", tags = ["Contacts"])
 
 @router.post("/")
 def create( contact : ContactCreate):
+    spam_input = SpamInput(
+        name = contact.name,
+        email = contact.email,
+        subject = contact.subject,
+        
+    )
 
     contact_id = create_contact(contact.model_dump())
     return {
