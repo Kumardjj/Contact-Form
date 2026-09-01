@@ -1,257 +1,143 @@
 # Contact Form API
 
-A RESTful Contact Form API built using FastAPI, MongoDB Atlas, and PyMongo. This project demonstrates backend development concepts such as CRUD operations, MongoDB integration, service-layer architecture, pagination, search functionality, exception handling, and API documentation using Swagger UI.
+A production-oriented RESTful Contact Form API built with **FastAPI, MongoDB Atlas, and PyMongo**.
+
+This project allows websites or applications to collect contact form submissions, detect potentially spam messages using a rule-based spam filtering system, securely store submissions in MongoDB, and send email notifications for legitimate messages.
+
+The project follows a modular architecture with separate layers for contact management, authentication, spam detection, notifications, and database operations.
+
+---
 
 ## Features
 
-- Create a Contact Submission
+### Contact Management
+
+- Create Contact Submissions
 - View All Contact Submissions
 - View a Single Contact by ID
 - Update Contact Details
-- Delete a Contact
+- Delete Contact Submissions
+
+### Search and Pagination
+
 - Pagination Support
-- Search by Name or Email
-- MongoDB Atlas Integration
-- Pydantic Data Validation
+- Search Contacts by Name
+- Search Contacts by Email
+- Case-insensitive MongoDB Search
+
+### Authentication and Security
+
+- JWT Authentication
+- Protected Admin Endpoints
+- HTTP Bearer Token Authentication
+- Password Hashing using BCrypt
+- Environment Variable Management
+
+### Spam Detection
+
+- Rule-Based Spam Detection System
+- URL Detection
+- Suspicious Keyword Detection
+- Excessive Capitalization Detection
+- Repeated Character Detection
+- Spam Score Calculation
+- Contact Classification:
+  - Legitimate
+  - Review
+  - Spam
+- Spam Reasons Stored in MongoDB
+
+### Notifications
+
+- Email Notification Integration
+- SMTP Email Support
+- Gmail SMTP Configuration
+- Background Email Processing using FastAPI BackgroundTasks
+- Notifications Sent Only for Legitimate Messages
+
+### Architecture
+
 - Service Layer Architecture
+- Modular Project Structure
+- Separation of Concerns
+- Environment-Based Configuration
 - RESTful API Design
-- Interactive Swagger Documentation
 
 ---
 
-## Tech Stack
+# Tech Stack
 
-### Backend
+## Backend
+
+- Python
 - FastAPI
-- PyMongo
-- Pydantic
 - Uvicorn
 
-### Database
-- MongoDB Atlas
+## Database
 
-### Other Tools
-- Python Dotenv
+- MongoDB Atlas
+- PyMongo
 - BSON
+
+## Authentication
+
+- JWT
+- Python-JOSE
+- Passlib
+- BCrypt
+
+## Validation
+
+- Pydantic
+
+## Spam Detection
+
+- Python Dataclasses
+- Regular Expressions (`re`)
+
+## Notifications
+
+- SMTP
+- Python EmailMessage
+- FastAPI BackgroundTasks
+
+## Configuration
+
+- Python Dotenv
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
-contact_api/
+contact-form-api/
+
+│
+├── main.py
+├── test.py
+├── requirements.txt
+├── .env
+├── .gitignore
 │
 └── app/
     │
-    ├── main.py
-    ├── routes.py
-    ├── contact_service.py
+    ├── __init__.py
+    │
+    ├── config.py
     ├── database.py
     ├── models.py
+    ├── routes.py
+    ├── contact_service.py
+    ├── security.py
+    ├── auth.py
     │
-    └── .env
-```
-
----
-
-## API Endpoints
-
-### Create Contact
-
-```http
-POST /contacts/
-```
-
-Request Body
-
-```json
-{
-    "name": "Rahul Sharma",
-    "email": "rahul@gmail.com",
-    "subject": "Product Inquiry",
-    "message": "Need product details"
-}
-```
-
----
-
-### Get All Contacts
-
-```http
-GET /contacts/
-```
-
----
-
-### Get Contact By ID
-
-```http
-GET /contacts/{contact_id}
-```
-
----
-
-### Update Contact
-
-```http
-PUT /contacts/{contact_id}
-```
-
----
-
-### Delete Contact
-
-```http
-DELETE /contacts/{contact_id}
-```
-
----
-
-## Pagination
-
-Retrieve records page-wise.
-
-```http
-GET /contacts/?page=1&limit=10
-```
-
-Parameters:
-
-| Parameter | Description |
-|------------|------------|
-| page | Current Page Number |
-| limit | Records Per Page |
-
----
-
-## Search
-
-Search contacts using Name or Email.
-
-```http
-GET /contacts/?search=rahul
-```
-
-The API performs a case-insensitive search using MongoDB regular expressions.
-
----
-
-## Environment Variables
-
-Create a `.env` file in the root directory.
-
-```env
-MONGO_URL=your_mongodb_atlas_connection_string
-```
-
-Example:
-
-```env
-MONGO_URL=mongodb+srv://username:password@cluster.mongodb.net/
-```
-
----
-
-## Installation
-
-Clone Repository
-
-```bash
-git clone https://github.com/yourusername/contact-form-api.git
-```
-
-Move into project
-
-```bash
-cd contact-form-api
-```
-
-Create Virtual Environment
-
-```bash
-python -m venv venv
-```
-
-Activate Virtual Environment
-
-Windows
-
-```bash
-venv\Scripts\activate
-```
-
-Linux / Mac
-
-```bash
-source venv/bin/activate
-```
-
-Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Run Application
-
-```bash
-uvicorn app.main:app --reload
-```
-
-Application URL
-
-```text
-http://127.0.0.1:8000
-```
-
-Swagger Documentation
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-ReDoc Documentation
-
-```text
-http://127.0.0.1:8000/redoc
-```
-
----
-
-## Learning Outcomes
-
-Through this project, I gained hands-on experience with:
-
-- FastAPI Framework
-- REST API Development
-- MongoDB Atlas
-- PyMongo CRUD Operations
-- Pydantic Validation
-- Pagination Implementation
-- Search and Filtering
-- Service Layer Architecture
-- Error Handling
-- API Documentation
-- Environment Variable Management
-
----
-
-## Future Enhancements
-
-- JWT Authentication
-- Role-Based Access Control
-- Logging
-- Docker Containerization
-- Unit Testing
-- CI/CD Pipeline
-- Deployment on Cloud Platforms
-
----
-
-## Author
-
-Dheeraj Kumar
-
-Backend API project developed for learning production-level FastAPI and MongoDB development.
+    ├── spam/
+    │   ├── __init__.py
+    │   ├── models.py
+    │   ├── rules.py
+    │   └── service.py
+    │
+    └── notifications/
+        ├── __init__.py
+        ├── email.py
+        └── service.py

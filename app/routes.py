@@ -45,7 +45,7 @@ def create(contact: ContactCreate):
         "spam": {
             "score": spam_result.score,
             "status": spam_result.status,
-            "reasons": spam_result.reasons
+            "reasons": spam_result.reason
         }
     }
 
