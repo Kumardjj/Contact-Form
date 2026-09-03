@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks,Query
 from bson import ObjectId 
 from bson.errors import InvalidId
 from app.models import ContactCreate
@@ -13,10 +13,13 @@ from app.dependencies import get_current_user
 from app.contact_service import get_collection
 from app.spam.models import SpamInput 
 from app.spam.spam_service import calculate_spam_score
+
+from app.notification.service import send_notification
 router = APIRouter(prefix = "/contacts", tags = ["Contacts"])
 
 @router.post("/")
-def create(contact: ContactCreate):
+def create(contact: ContactCreate,
+           background_tasks: BackgroundTasks):
 
     # Convert API input into spam-engine input
     spam_input = SpamInput(
@@ -39,6 +42,15 @@ def create(contact: ContactCreate):
     # Save everything into MongoDB
     contact_id = create_contact(data)
 
+    if spam_result.status == "legitimate":
+        background_tasks.add_task(
+            send_notification,
+            contact.name,
+            contact.email,
+            contact.subject,
+            contact.message
+        )
+
     return {
         "message": "Contact form submitted successfully",
         "id": str(contact_id),
@@ -50,8 +62,8 @@ def create(contact: ContactCreate):
     }
 
 @router.get("/")
-def get_all(page: int = 1,
-            limit: int = 10,
+def get_all(page: int =Query(default = 1, ge=1),
+            limit: int = Query(default=10, ge=1, le=20),
             search : str = "",
             collection = Depends(get_collection),
             current_user : str  = Depends(get_current_user)

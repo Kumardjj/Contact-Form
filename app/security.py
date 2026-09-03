@@ -12,6 +12,20 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MNUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE",30))
 
+SMTP_HOST = os.getenv("SMTP_HOST")
+SMTP_PORT = int(os.getenv("SMTP_PORT",587))
+SMTP_USERNAME = os.getenv("kumardjj2001@gmail.com")
+SMTP_PASSWORD =  os.getenv("SMTP_PASSWORD")
+NOTIFICATION_EMAIL = os.getenv("kumardjj2001@gmail.com")
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM")
+TWILIO_NOTIFICATION_NUMBER = os.getenv(
+    "WHATSAPP_NOTIFICATION_NUMBER"
+)
+
+
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated = "auto"
