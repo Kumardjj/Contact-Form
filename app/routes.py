@@ -17,11 +17,15 @@ from app.spam.spam_service import calculate_spam_score
 from app.notification.service import send_notification
 router = APIRouter(prefix = "/contacts", tags = ["Contacts"])
 
-@router.post("/")
-def create(contact: ContactCreate,
-           background_tasks: BackgroundTasks):
 
-    # Convert API input into spam-engine input
+@router.post("/")
+def create(
+    contact: ContactCreate,
+    background_tasks: BackgroundTasks
+):
+
+    # Convert API input into SpamInput
+
     spam_input = SpamInput(
         name=contact.name,
         email=contact.email,
@@ -30,19 +34,29 @@ def create(contact: ContactCreate,
     )
 
     # Run spam detection
-    spam_result = calculate_spam_score(spam_input)
+
+    spam_result = calculate_spam_score(
+        spam_input
+    )
 
     # Prepare MongoDB document
+
     data = contact.model_dump()
 
     data["spam_score"] = spam_result.score
+
     data["spam_status"] = spam_result.status
+
     data["spam_reasons"] = spam_result.reason
 
-    # Save everything into MongoDB
+    # Save into MongoDB
+
     contact_id = create_contact(data)
 
+    # Send notification only for legitimate messages
+
     if spam_result.status == "legitimate":
+
         background_tasks.add_task(
             send_notification,
             contact.name,
@@ -53,7 +67,9 @@ def create(contact: ContactCreate,
 
     return {
         "message": "Contact form submitted successfully",
+
         "id": str(contact_id),
+
         "spam": {
             "score": spam_result.score,
             "status": spam_result.status,

@@ -14,9 +14,9 @@ ACCESS_TOKEN_EXPIRE_MNUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE",30))
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = int(os.getenv("SMTP_PORT",587))
-SMTP_USERNAME = os.getenv("kumardjj2001@gmail.com")
+SMTP_USERNAME = os.getenv("SMTP_USERNAME")
 SMTP_PASSWORD =  os.getenv("SMTP_PASSWORD")
-NOTIFICATION_EMAIL = os.getenv("kumardjj2001@gmail.com")
+NOTIFICATION_EMAIL = os.getenv("NOTIFICATION_EMAIL")
 
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
