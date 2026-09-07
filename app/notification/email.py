@@ -1,6 +1,7 @@
 import smtplib
 from email.message import EmailMessage
 
+
 from app.security import SMTP_HOST,SMTP_PASSWORD,SMTP_PORT,SMTP_USERNAME, NOTIFICATION_EMAIL
 
 def send_contact_email(
@@ -15,7 +16,7 @@ def send_contact_email(
     msg["From"] = SMTP_USERNAME
     msg["To"] = NOTIFICATION_EMAIL
 
-    msg.setcontent( f"""
+    msg.set_content( f"""
 You recieved a new contact form submission
 
 Name: {name}
@@ -27,7 +28,7 @@ message:
 """
     )
 
-    with smtplib.SMTP(SMTP_PORT, SMTP_HOST) as server:
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
         server.starttls()
 
         server.login(

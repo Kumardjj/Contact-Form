@@ -1,3 +1,4 @@
+from email import message
 import re
 from .models import SpamResult, SpamInput
 
@@ -51,7 +52,7 @@ SUSPICIOUS_KEYWORDS = [
 def normalize_text(text : str) -> str:
     return text.lower().strip()
 
-def find_suspicious_keyword(text:str)->list[str]:
+def find_suspicious_keywords(text:str)->list[str]:
     text = normalize_text(text)
     found_keywords = []
     for keyword in SUSPICIOUS_KEYWORDS:
@@ -73,7 +74,7 @@ def has_repeated_characters(text : str)-> bool:
 
 
 def calculate_spam_score(data: SpamInput) -> SpamResult:
-
+    print(data.name, data.email, data.subject, data.message)
     score = 0.0
     reasons = []
 
