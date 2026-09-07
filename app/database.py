@@ -11,3 +11,5 @@ client = MongoClient(MONGO_URL)
 db = client["contact_db"]
 
 contact_collection = db["contact_form"]
+
+users_collection = db['users']
