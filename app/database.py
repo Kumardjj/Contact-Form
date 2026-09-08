@@ -13,3 +13,7 @@ db = client["contact_db"]
 contact_collection = db["contact_form"]
 
 users_collection = db['users']
+
+forms_collection = db['forms']
+
+submissions_collection = db["submissions"]

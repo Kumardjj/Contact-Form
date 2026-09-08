@@ -1,24 +1,49 @@
 import os
-from fastapi import HTTPException
-from pymongo.errors import PyMongoError
+
 from dotenv import load_dotenv
+from pymongo.errors import PyMongoError
+
 from app.database import users_collection
-from app.security import (verify_password,hash_password, create_access_token)
+
+from app.security import (
+    verify_password,
+    hash_password,
+    create_access_token
+)
+
+from app.exception import (
+    EmailAlreadyExistsError,
+    PasswordMismatchError,
+    DatabaseError,
+    InvalidCredentialsError
+)
+from app.logging_config import logger
+
 
 load_dotenv()
 
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD_HASH")
 
-def register_user(name:str , email:str , password: str, cnf_password : str):
+def register_user(
+    name: str,
+    email: str,
+    password: str,
+    cnf_password: str
+):
+
     if password != cnf_password:
-        raise HTTPException(
-            status_code=400,
-            detail="password do not match"
-        )
+        logger.warning("Password mismatch during registration")
+        raise PasswordMismatchError()
+
     try:
+
         if users_collection.find_one({"email": email}):
-            raise ValueError("Email already registered")
+
+            logger.warning(
+                "Registration attempted with existing email: %s",
+                email
+            )
+
+            raise EmailAlreadyExistsError()
 
         user = {
             "name": name,
@@ -29,37 +54,60 @@ def register_user(name:str , email:str , password: str, cnf_password : str):
         result = users_collection.insert_one(user)
 
         if not result.inserted_id:
-            raise RuntimeError("User creation failed")
+
+            logger.error("User creation failed")
+
+            raise DatabaseError()
+
+        logger.info(
+            "User registered successfully: %s",
+            email
+        )
 
         return user
 
     except PyMongoError as e:
-        raise RuntimeError("Database error") from e
 
-def authenticate_user(useremail: str, password :str):
+        logger.exception(
+            "MongoDB error during registration"
+        )
+
+        raise DatabaseError() from e
+
+
+def authenticate_user(useremail: str, password: str):
+
     try:
         user = users_collection.find_one({
             "email": useremail
         })
 
         if not user:
-            return None
+            logger.warning("Failed login attempt")
+            raise InvalidCredentialsError()
 
         if not verify_password(password, user["password"]):
-            return None
+            logger.warning("Failed login attempt")
+            raise InvalidCredentialsError()
+
+        logger.info(
+            "User authenticated successfully: %s",
+            useremail
+        )
 
         return user
 
-    except PyMongoError:
-        raise HTTPException(
-            status_code=503,
-            detail="Database service unavailable"
-        )
+    except PyMongoError as e:
+        logger.exception("MongoDB error during authentication")
+        raise DatabaseError() from e
 
-def login_user(username: str, password : str):
-    user = authenticate_user(username, password)
-    if not user:
-        return None
+def login_user(username: str, password: str):
+
+    user = authenticate_user(
+        username,
+        password
+    )
+
     access_token = create_access_token(
         {
             "sub": str(user["_id"]),
@@ -67,15 +115,9 @@ def login_user(username: str, password : str):
         }
     )
 
+    logger.info(
+        "Access token generated for user: %s",
+        user["email"]
+    )
+
     return access_token
-
-class EmailAlreadyExistsError(Exception):
-    pass
-
-
-class PasswordMismatchError(Exception):
-    pass
-
-
-class DatabaseError(Exception):
-    pass
