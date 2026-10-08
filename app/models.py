@@ -17,6 +17,7 @@ class LoginRequest(BaseModel):
 
 class FormCreate(BaseModel):
     form_name: str = Field(min_length=2, max_length=100)
+    notification_email : EmailStr
 
 class SubmissionCreate(BaseModel):
     data: dict

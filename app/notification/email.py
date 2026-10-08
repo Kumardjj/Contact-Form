@@ -1,20 +1,21 @@
 import smtplib
 from email.message import EmailMessage
+from pydantic import EmailStr
 
-
-from app.security import SMTP_HOST,SMTP_PASSWORD,SMTP_PORT,SMTP_USERNAME, NOTIFICATION_EMAIL
+from app.security import SMTP_HOST,SMTP_PASSWORD,SMTP_PORT,SMTP_USERNAME
 
 def send_contact_email(
         name:str,
         email:str,
         subject:str,
-        message:str
+        message:str,
+        notification_email:EmailStr
 ):
     msg = EmailMessage()
 
     msg["Subject"] = f"New Contact Form Submission: {subject}"
     msg["From"] = SMTP_USERNAME
-    msg["To"] = NOTIFICATION_EMAIL
+    msg["To"] = notification_email
 
     msg.set_content( f"""
 You recieved a new contact form submission

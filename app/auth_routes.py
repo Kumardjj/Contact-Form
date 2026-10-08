@@ -33,7 +33,7 @@ def register(credentials: RegisterRequest):
 def login(credentials: LoginRequest):
 
     access_token = login_user(
-        credentials.username,
+        credentials.email,
         credentials.password
     )
 
