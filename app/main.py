@@ -21,6 +21,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.middleware import SlowAPIMiddleware
+
+from app.rate_limiter import limiter
 
 app.include_router(router)
 app.include_router(auth_router)
@@ -47,3 +52,13 @@ app.add_exception_handler(
     InvalidCredentialsError,
     invalid_credentials_handler
 )
+
+
+app.state.limiter = limiter
+
+app.add_exception_handler(
+    RateLimitExceeded,
+    _rate_limit_exceeded_handler
+)
+
+app.add_middleware(SlowAPIMiddleware)

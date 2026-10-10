@@ -14,6 +14,15 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email : str
     password: str 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_lenghth= 20, max_length = 200)
+    new_password : str = Field( min_length = 8, max_length = 200)
+    confirm_password : str = Field(min_length = 8, max_length = 200)
+
+
 
 class FormCreate(BaseModel):
     form_name: str = Field(min_length=2, max_length=100)

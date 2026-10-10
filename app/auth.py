@@ -1,4 +1,9 @@
 import os
+import hashlib
+import secrets
+
+from datetime import datetime, timedelta, timezone
+from app.notification.email import send_password_reset_email
 
 from dotenv import load_dotenv
 from pymongo.errors import PyMongoError
@@ -21,6 +26,13 @@ from app.logging_config import logger
 
 
 load_dotenv()
+
+FRONTEND_RESET_URL = os.getenv(
+    "FRONTEND_RESET_URL",
+    "http://localhost:5173/reset-password"
+)
+
+RESET_TOKEN_EXPIRY_MINUTES = 15
 
 
 def register_user(
@@ -121,3 +133,85 @@ def login_user(username: str, password: str):
     )
 
     return access_token
+
+def create_password_reset_request(email:str):
+    try:
+        user = users_collection.find_one({"email":email})
+        if not user:
+            return f"user doesn't exist"
+
+        raw_token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(
+            raw_token.encode("utf-8")).hexdigest()
+        
+        expires_at = ( datetime.now(timezone.utc) + timedelta(minutes = RESET_TOKEN_EXPIRY_MINUTES))
+
+        users_collection.update_one({"_id" : user["_id"]},
+                                    {
+                                        "$set": {
+                                            "password_reset_token_hash": token_hash,
+                                            "password_reset_token_expires_at": expires_at
+                                        }
+                                    })
+    except PyMongoError as e:
+        logger.exception(
+            "Database error creating password reset request"
+        )
+        raise DatabaseError() from e
+    # send the raw token in the email never store it.
+    reset_url = ( f"{FRONTEND_RESET_URL}?token={raw_token}")
+
+    return {
+        "to_email": user["email"],
+        "reset_url": reset_url
+    }
+
+def reset_user_password(
+        token:str,
+        new_password:str
+) -> bool:
+    token_hash = hashlib.sha256(
+        token.encode("utf-8")).hexdigest(
+    )
+    now = datetime.now(timezone.utc)
+    # Only a valid, unexpired token can match
+    token_query = {
+        "password_reset_token_hash": token_hash,
+        "password_reset_expires_at": {
+            "$gt": now
+        }
+    }
+
+    try:
+        user = users_collection.find(
+            token_query,{"_id":1}
+        )
+        if not user:
+            return False
+
+        new_password_hash = hash_password(new_password)
+
+        result = users_collection.update_one(
+            {
+                "_id": user["_id"],
+                **token_query
+            },
+            {
+                "$set": {
+                    "password": new_password_hash,
+                    "password_changed_at": now
+                },
+                "$unset": {
+                    "password_reset_token_hash": "",
+                    "password_reset_expires_at": ""
+                }
+            }
+        )
+         # Only one successful request can consume the token
+        return result.modified_count == 1
+
+    except PyMongoError as e:
+        logger.exception(
+            "Database error resetting password"
+        )
+        raise DatabaseError() from e

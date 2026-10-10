@@ -23,6 +23,12 @@ from app.notification.service import send_notification
 from typing import Annotated
 from fastapi import Form
 
+from fastapi import Request
+from typing import Annotated
+from fastapi import Form
+
+from app.rate_limiter import limiter
+
 router = APIRouter(
     prefix="/forms",
     tags=["Forms"]
@@ -80,7 +86,9 @@ def get_my_forms(
 
 
 @router.post("/{public_id}/submit", status_code=201)
+@limiter.limit("5/hour")
 def submit_form(
+    request: Request,
     public_id: UUID,
     contact: Annotated[ContactCreate, Form()],
     background_tasks: BackgroundTasks
