@@ -14,7 +14,7 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email : str
     password: str 
-
+ 
 class FormCreate(BaseModel):
     form_name: str = Field(min_length=2, max_length=100)
 
