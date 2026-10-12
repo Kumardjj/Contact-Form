@@ -402,6 +402,16 @@ button {
   font-size: 17px;
 }
 
+.auth-switch {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  color: #a3a1ab;
+  font-size: 12px;
+}
+
 .form-message {
   margin: 13px 0 0;
   color: #ffb3bd;
