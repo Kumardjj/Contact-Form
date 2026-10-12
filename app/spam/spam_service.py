@@ -56,7 +56,8 @@ def find_suspicious_keywords(text:str)->list[str]:
     text = normalize_text(text)
     found_keywords = []
     for keyword in SUSPICIOUS_KEYWORDS:
-        found_keywords.append(keyword)
+        if keyword in text:
+            found_keywords.append(keyword)
     return found_keywords
 
 def has_excessive_caps(text: str) -> bool:
