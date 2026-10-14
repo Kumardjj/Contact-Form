@@ -39,7 +39,7 @@ def get_my_submissions(page: int, limit: int, search: str, user_id):
     submissions = []
 
     cursor = (
-        submissions_collection.find(query).sort("_id", -1).skip(skip).limit(limit)
+        submissions_collection.find(query).sort("submitted_at", -1).skip(skip).limit(limit)
     )
 
     for submission in cursor:

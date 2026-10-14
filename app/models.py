@@ -14,9 +14,15 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email : str
     password: str 
-<<<<<<< HEAD
- 
-=======
+
+class ProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    email: EmailStr
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=1)
+    new_password: str = Field(min_length=8, max_length=128)
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
@@ -25,9 +31,6 @@ class ResetPasswordRequest(BaseModel):
     new_password : str = Field( min_length = 8, max_length = 200)
     confirm_password : str = Field(min_length = 8, max_length = 200)
 
-
-
->>>>>>> d8ba0ab1d9841818ea79ef1c08d4d04c13a185e8
 class FormCreate(BaseModel):
     form_name: str = Field(min_length=2, max_length=100)
     notification_email : EmailStr

@@ -11,4 +11,4 @@ class SpamInput:
 class SpamResult:
     score  : int
     status : str
-    reason : list[str] = field(default_factory=list)
+    
