@@ -3,6 +3,7 @@ import { useState } from "react";
 import "./App.css";
 import Dashboard from "./Dashboard";
 import CreateFormWizard from "./CreateFormWizard";
+import ProfileWizard from "./ProfileWizard";
 
 function App() {
   const [isRegister, setIsRegister] = useState(false);
@@ -11,6 +12,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [showWizard, setShowWizard] = useState(false);
   const [dashboardVersion, setDashboardVersion] = useState(0);
+  const [showProfile, setShowProfile] = useState(false);
   const [name, setName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -98,14 +100,17 @@ function App() {
       setShowWizard(false);
     };
 
+
     return (
       <>
         <Dashboard
           key={dashboardVersion}
           onLogout={handleLogout}
           onCreateForm={() => setShowWizard(true)}
+          onProfileClick={() => setShowProfile(true)}
         />
 
+        {/* Create Form Wizard */}
         {showWizard && (
           <CreateFormWizard
             onClose={() => setShowWizard(false)}
@@ -115,8 +120,20 @@ function App() {
             }}
           />
         )}
+
+        {/* Profile Wizard */}
+        {showProfile && (
+          <ProfileWizard
+            onClose={() => setShowProfile(false)}
+            onLogout={handleLogout}
+            onProfileUpdated={() => {
+              setDashboardVersion((version) => version + 1);
+            }}
+          />
+        )}
       </>
     );
+
   }
   return (
     <main className="login-page">

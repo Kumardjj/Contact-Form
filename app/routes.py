@@ -12,7 +12,7 @@ from app.contact_service import (create_contact,
 from app.dependencies import get_current_user
 from app.contact_service import get_collection
 from app.ML.models import SpamInput 
-from app.ML.spam_service import calculate_spam_score
+from app.ML.rules import calculate_spam_score
 
 from app.notification.service import send_notification
 router = APIRouter(prefix = "/contacts", tags = ["Contacts"])

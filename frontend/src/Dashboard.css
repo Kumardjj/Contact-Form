@@ -92,7 +92,39 @@
   font-size: 10px;
   text-overflow: ellipsis;
 }
+.sidebar-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
 
+.sidebar-profile-trigger:hover,
+.sidebar-profile-trigger:focus-visible {
+    background: rgba(255, 255, 255, 0.06);
+    outline: none;
+}
+
+.sidebar-user {
+    min-width: 0;
+}
+
+.sidebar-user strong,
+.sidebar-user span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-user span {
+    max-width: 160px;
+}
 
 .logout-button {
   margin-left: auto;
@@ -230,6 +262,7 @@
 .form-list{
   display: flex;
   flex-direction: column;
+  margin:auto;
 
 }
 
