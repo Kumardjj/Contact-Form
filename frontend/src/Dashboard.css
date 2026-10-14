@@ -227,6 +227,16 @@
   margin: 7px 0 0;
 }
 
+.form-list{
+  display: flex;
+  flex-direction: column;
+
+}
+
+.form-row{
+  margin:auto;
+}
+
 /* Responsive submissions table */
 .submissions-table-wrapper {
     width: 100%;

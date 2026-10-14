@@ -47,7 +47,7 @@ def register_user(
         raise PasswordMismatchError()
 
     try:
-
+        email = email.strip().lower()
         if users_collection.find_one({"email": email}):
 
             logger.warning(
@@ -90,6 +90,7 @@ def register_user(
 def authenticate_user(useremail: str, password: str):
 
     try:
+        useremail = useremail.strip().lower()
         user = users_collection.find_one({
             "email": useremail
         })
