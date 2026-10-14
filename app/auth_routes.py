@@ -9,14 +9,18 @@ from app.models import (
     LoginRequest,
     RegisterRequest,
     ForgotPasswordRequest,
-    ResetPasswordRequest
+    ResetPasswordRequest,
+    ProfileUpdate,
+    ChangePasswordRequest
 )
 
 from app.auth import (
     login_user,
     register_user,
     create_password_reset_request,
-    reset_user_password
+    reset_user_password,
+    update_user_profile,
+    change_user_password
 )
 
 from app.notification.email import send_password_reset_email
@@ -67,6 +71,30 @@ def get_me(current_user=Depends(get_current_user)):
         "name": current_user["name"],
         "email": current_user["email"]
     }
+
+@router.patch("/update-profile")
+def update_profile(
+    data: ProfileUpdate,
+    current_user=Depends(get_current_user)
+):
+    return update_user_profile(
+        user_id=current_user["_id"],
+        name=data.name,
+        email=str(data.email)
+    )
+
+
+@router.post("/change-password")
+def change_password(
+    data: ChangePasswordRequest,
+    current_user=Depends(get_current_user)
+):
+    return change_user_password(
+        user_id=current_user["_id"],
+        current_password=data.current_password,
+        new_password=data.new_password
+    )
+
 
 @router.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest,

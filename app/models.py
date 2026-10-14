@@ -15,6 +15,17 @@ class LoginRequest(BaseModel):
     email : str
     password: str 
 
+<<<<<<< HEAD
+=======
+class ProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    email: EmailStr
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=1)
+    new_password: str = Field(min_length=8, max_length=128)
+
+>>>>>>> ad5d3d02925f90ef8883b2ed32326d62794ef0f0
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 

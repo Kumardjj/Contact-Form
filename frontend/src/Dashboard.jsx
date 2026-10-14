@@ -5,7 +5,7 @@ import "./Dashboard.css";
 
 const API_URL = "http://127.0.0.1:8000";
 
-function Dashboard({ onLogout, onCreateForm }) {
+function Dashboard({ onLogout, onCreateForm, onProfileClick }) {
     const [user, setUser] = useState(null);
     const [forms, setForms] = useState([]);
     const [submissions, setSubmissions] = useState([]);
@@ -114,20 +114,40 @@ function Dashboard({ onLogout, onCreateForm }) {
                     <span>◫</span> Submissions
                 </div>
 
+
                 <div className="sidebar-bottom">
-                    <div className="user-avatar">
-                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    <div
+                        className="sidebar-profile-trigger"
+                        onClick={onProfileClick}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                onProfileClick?.();
+                            }
+                        }}
+                        title="Open profile settings"
+                    >
+                        <div className="user-avatar">
+                            {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+
+                        <div className="sidebar-user">
+                            <strong>{user?.name || "User"}</strong>
+                            <span>{user?.email || ""}</span>
+                        </div>
                     </div>
 
-                    <div className="sidebar-user">
-                        <strong>{user?.name || "User"}</strong>
-                        <span>{user?.email || ""}</span>
-                    </div>
-
-                    <button className="logout-button" onClick={onLogout}>
+                    <button
+                        type="button"
+                        className="logout-button"
+                        onClick={onLogout}
+                    >
                         Logout
                     </button>
                 </div>
+
             </aside>
 
             <main className="dashboard-main">
@@ -286,8 +306,8 @@ function Dashboard({ onLogout, onCreateForm }) {
                                             <td>
                                                 <span
                                                     className={`submission-status ${item.spam_status === "spam"
-                                                            ? "spam"
-                                                            : "legitimate"
+                                                        ? "spam"
+                                                        : "legitimate"
                                                         }`}
                                                 >
                                                     {item.spam_status || "Unknown"}

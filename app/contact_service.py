@@ -59,6 +59,17 @@ def get_contact(contact_id, contact):
         contact['_id'] = str(contact['_id'])
     return contact
 
+# @router.post("/{contact_id}")
+# def update(contact_id :str , contact : ContactCreate, current_user : str  = Depends(get_current_user)):
+#     result = update_contact(contact_id)
+#     if result.matched_count == 0:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="contact not found"
+#         )
+#     return {"message":"updated successfully"}
+
+
 def update_contact(contact_id,contact):
     result = contact_collection.update_one({
         "_id": ObjectId(contact_id)

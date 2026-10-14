@@ -16,8 +16,8 @@ from app.database import (
 from app.models import FormCreate, ContactCreate
 from app.dependencies import get_current_user
 
-from app.spam.models import SpamInput
-from app.spam.spam_service import calculate_spam_score
+from app.ML.models import SpamInput
+from app.ML.rules import calculate_spam_score
 
 from app.notification.service import send_notification
 from typing import Annotated
@@ -123,7 +123,6 @@ def submit_form(
         "user_id": form["user_id"],
         "spam_score": spam_result.score,
         "spam_status": spam_result.status,
-        "spam_reasons": spam_result.reason,
         "submitted_at": datetime.now(timezone.utc)
     })
 
@@ -147,6 +146,5 @@ def submit_form(
         "spam": {
             "score": spam_result.score,
             "status": spam_result.status,
-            "reasons": spam_result.reason
         }
     }

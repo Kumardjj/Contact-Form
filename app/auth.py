@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from app.notification.email import send_password_reset_email
 
 from dotenv import load_dotenv
-from pymongo.errors import PyMongoError
+from pymongo.errors import DuplicateKeyError, PyMongoError
 
 from app.database import users_collection
 
@@ -23,7 +23,7 @@ from app.exception import (
     InvalidCredentialsError
 )
 from app.logging_config import logger
-
+from fastapi import HTTPException
 
 load_dotenv()
 
@@ -47,7 +47,7 @@ def register_user(
         raise PasswordMismatchError()
 
     try:
-
+        email = email.strip().lower()
         if users_collection.find_one({"email": email}):
 
             logger.warning(
@@ -90,6 +90,7 @@ def register_user(
 def authenticate_user(useremail: str, password: str):
 
     try:
+        useremail = useremail.strip().lower()
         user = users_collection.find_one({
             "email": useremail
         })
@@ -113,10 +114,10 @@ def authenticate_user(useremail: str, password: str):
         logger.exception("MongoDB error during authentication")
         raise DatabaseError() from e
 
-def login_user(username: str, password: str):
+def login_user(useremail: str, password: str):
 
     user = authenticate_user(
-        username,
+        useremail,
         password
     )
 
@@ -133,6 +134,138 @@ def login_user(username: str, password: str):
     )
 
     return access_token
+
+def update_user_profile(user_id, name: str, email: str):
+    name = name.strip()
+    email = email.strip().lower()
+
+    if not name:
+        raise HTTPException(
+            status_code=400,
+            detail="Name cannot be empty."
+        )
+
+    if not email or "@" not in email:
+        raise HTTPException(
+            status_code=400,
+            detail="Please provide a valid email address."
+        )
+
+    # Prevent another account from using this email.
+    existing_user = users_collection.find_one({
+        "email": email,
+        "_id": {"$ne": user_id}
+    })
+
+    if existing_user:
+        raise HTTPException(
+            status_code=409,
+            detail="This email is already registered."
+        )
+
+    try:
+        result = users_collection.update_one(
+            {"_id": user_id},
+            {
+                "$set": {
+                    "name": name,
+                    "email": email
+                }
+            }
+        )
+    except DuplicateKeyError:
+        # Also protects against concurrent email updates,
+        # provided a unique email index exists.
+        raise HTTPException(
+            status_code=409,
+            detail="This email is already registered."
+        )
+    except PyMongoError:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update your profile."
+        )
+
+    if result.matched_count == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="User account not found."
+        )
+
+    return {
+        "message": "Profile updated successfully.",
+        "name": name,
+        "email": email
+    }
+
+
+def change_user_password(
+    user_id,
+    current_password: str,
+    new_password: str
+):
+    user = users_collection.find_one({"_id": user_id})
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User account not found."
+        )
+
+    # Change "hashed_password" if your database uses
+    # a different field name.
+    stored_hash = user.get("password")
+
+    if not stored_hash or not verify_password(
+        current_password, stored_hash
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Current password is incorrect."
+        )
+
+    if len(new_password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="New password must be at least 8 characters."
+        )
+
+    if current_password == new_password:
+        raise HTTPException(
+            status_code=400,
+            detail="New password must differ from your current password."
+        )
+
+    new_hash = hash_password(new_password)
+
+    try:
+        result = users_collection.update_one(
+            {
+                "_id": user_id,
+                "hashed_password": stored_hash
+            },
+            {
+                "$set": {
+                    "hashed_password": new_hash
+                }
+            }
+        )
+    except PyMongoError:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not change your password."
+        )
+
+    if result.modified_count == 0:
+        raise HTTPException(
+            status_code=409,
+            detail="Password was not changed. Please try again."
+        )
+
+    return {
+        "message": "Password changed successfully."
+    }
+
 
 def create_password_reset_request(email:str):
     try:
