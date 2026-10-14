@@ -14,6 +14,9 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email : str
     password: str 
+<<<<<<< HEAD
+ 
+=======
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
@@ -24,6 +27,7 @@ class ResetPasswordRequest(BaseModel):
 
 
 
+>>>>>>> d8ba0ab1d9841818ea79ef1c08d4d04c13a185e8
 class FormCreate(BaseModel):
     form_name: str = Field(min_length=2, max_length=100)
     notification_email : EmailStr
