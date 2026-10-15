@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import router
 from app.auth_routes import router as auth_router
 from app.submission_routes import router as submission_router
 from app.exception import (
@@ -38,7 +37,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from app.rate_limiter import limiter
 
 
-app.include_router(router)
+
 app.include_router(auth_router)
 app.include_router(form_router)
 app.include_router(submission_router)

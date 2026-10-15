@@ -99,7 +99,7 @@ def change_password(
 @router.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest,
                     background_tasks: BackgroundTasks):
-    reset_details = create_password_reset_request(str(request.email))
+    reset_details = create_password_reset_request(str(request.email).strip().lower())
     if reset_details:
         background_tasks.add_task(
             send_password_reset_email,
@@ -112,6 +112,7 @@ def forgot_password(request: ForgotPasswordRequest,
             "a password reset link has been sent."
         )
     }
+
 
     
 @router.post("/reset-password")

@@ -271,7 +271,7 @@ def create_password_reset_request(email:str):
     try:
         user = users_collection.find_one({"email":email})
         if not user:
-            return f"user doesn't exist"
+            return None
 
         raw_token = secrets.token_urlsafe(32)
         token_hash = hashlib.sha256(
@@ -310,13 +310,13 @@ def reset_user_password(
     # Only a valid, unexpired token can match
     token_query = {
         "password_reset_token_hash": token_hash,
-        "password_reset_expires_at": {
+        "password_reset_token_expires_at": {
             "$gt": now
         }
     }
 
     try:
-        user = users_collection.find(
+        user = users_collection.find_one(
             token_query,{"_id":1}
         )
         if not user:
