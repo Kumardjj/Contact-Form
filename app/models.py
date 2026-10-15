@@ -15,6 +15,8 @@ class LoginRequest(BaseModel):
     email : str
     password: str 
 
+<<<<<<< HEAD
+=======
 class ProfileUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     email: EmailStr
@@ -23,11 +25,12 @@ class ChangePasswordRequest(BaseModel):
     current_password: str = Field(min_length=1)
     new_password: str = Field(min_length=8, max_length=128)
 
+>>>>>>> ad5d3d02925f90ef8883b2ed32326d62794ef0f0
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
 class ResetPasswordRequest(BaseModel):
-    token: str = Field(min_lenghth= 20, max_length = 200)
+    token: str = Field(min_length= 20, max_length = 200)
     new_password : str = Field( min_length = 8, max_length = 200)
     confirm_password : str = Field(min_length = 8, max_length = 200)
 
