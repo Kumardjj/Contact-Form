@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import "./ProfileWizard.css";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function ProfileWizard({ onClose, onProfileUpdated, onLogout }) {
     const [activeTab, setActiveTab] = useState("profile");
