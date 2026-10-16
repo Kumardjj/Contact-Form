@@ -214,7 +214,7 @@ def change_user_password(
 
     # Change "hashed_password" if your database uses
     # a different field name.
-    stored_hash = user.get("hashed_password")
+    stored_hash = user.get("password")
 
     if not stored_hash or not verify_password(
         current_password, stored_hash
@@ -242,11 +242,11 @@ def change_user_password(
         result = users_collection.update_one(
             {
                 "_id": user_id,
-                "hashed_password": stored_hash
+                "password": stored_hash
             },
             {
                 "$set": {
-                    "hashed_password": new_hash
+                    "password": new_hash
                 }
             }
         )
