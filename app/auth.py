@@ -214,7 +214,7 @@ def change_user_password(
 
     # Change "hashed_password" if your database uses
     # a different field name.
-    stored_hash = user.get("password")
+    stored_hash = user.get("hashed_password")
 
     if not stored_hash or not verify_password(
         current_password, stored_hash
